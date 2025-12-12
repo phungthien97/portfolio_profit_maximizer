@@ -71,6 +71,17 @@ router.post('/fetch', async (req, res) => {
       try {
         const symbol = asset.trim().toUpperCase();
         
+        // Get asset currency from quote API
+        let assetCurrency = 'USD'; // Default to USD
+        try {
+          const quoteData = await yahooFinance.quote(symbol);
+          if (quoteData && quoteData.currency) {
+            assetCurrency = quoteData.currency;
+          }
+        } catch (quoteError) {
+          console.warn(`Could not fetch currency for ${symbol}, defaulting to USD`);
+        }
+        
         // Fetch historical data using chart() API (v3 - historical() is deprecated)
         const chartData = await yahooFinance.chart(symbol, {
           period1: startDate,
@@ -86,6 +97,7 @@ router.post('/fetch', async (req, res) => {
             dates: [],
             prices: [],
             hasData: false,
+            currency: assetCurrency,
             error: 'No data available for this symbol in the specified date range'
           };
           errors.push({
@@ -110,6 +122,7 @@ router.post('/fetch', async (req, res) => {
         results[symbol] = {
           dates,
           prices,
+          currency: assetCurrency,
           hasData: true,
           dataQuality: {
             totalDays: actualDays,

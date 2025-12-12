@@ -22,8 +22,8 @@ export const fetchHistoricalData = (assets, startDate, endDate, currency) =>
   api.post('/data/fetch', { assets, startDate, endDate, currency });
 
 // Calculations endpoints
-export const calculateMetrics = (data, assets, interpolateMissing = false) =>
-  api.post('/calculations/metrics', { data, assets, interpolateMissing });
+export const calculateMetrics = (data, assets, interpolateMissing = false, targetCurrency = 'USD') =>
+  api.post('/calculations/metrics', { data, assets, interpolateMissing, targetCurrency });
 
 // Optimization endpoints
 export const computeFrontier = (metrics, data, assets) =>

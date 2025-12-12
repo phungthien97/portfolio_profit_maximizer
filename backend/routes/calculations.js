@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { mean, std, min, max } = require('mathjs');
+const { convertPriceArray } = require('../utils/currencyConverter');
 
 /**
  * Calculate annualized return using geometric mean
@@ -166,11 +167,11 @@ function interpolateMissingData(dates, prices) {
 /**
  * POST /calculations/metrics
  * Calculate annualized return, risk, and min/max prices for assets
- * Body: { data: object from /data/fetch, assets: string[], interpolateMissing: boolean }
+ * Body: { data: object from /data/fetch, assets: string[], interpolateMissing: boolean, targetCurrency: string }
  */
-router.post('/metrics', (req, res) => {
+router.post('/metrics', async (req, res) => {
   try {
-    const { data, assets, interpolateMissing = false } = req.body;
+    const { data, assets, interpolateMissing = false, targetCurrency = 'USD' } = req.body;
 
     if (!data || typeof data !== 'object') {
       return res.status(400).json({
@@ -222,6 +223,17 @@ router.post('/metrics', (req, res) => {
 
       let dates = assetData.dates || [];
       let prices = assetData.prices || [];
+      const assetCurrency = assetData.currency || 'USD';
+
+      // Convert prices to target currency if needed
+      if (assetCurrency !== targetCurrency && prices.length > 0) {
+        try {
+          prices = await convertPriceArray(prices, assetCurrency, targetCurrency);
+        } catch (conversionError) {
+          console.error(`Error converting prices for ${symbol}:`, conversionError);
+          // Continue with original prices if conversion fails
+        }
+      }
 
       // Interpolate missing data if requested
       if (interpolateMissing && dates.length > 0 && prices.length > 0) {

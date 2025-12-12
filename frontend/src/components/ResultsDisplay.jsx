@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Plot from 'react-plotly.js';
 import { useApp } from '../context/AppContext';
 import { fetchHistoricalData, calculateMetrics, computeFrontier } from '../services/api';
+import { formatCurrency, formatCurrencyAmount } from '../utils/currencyFormatter';
 
 const ResultsDisplay = () => {
   const navigate = useNavigate();
@@ -57,8 +58,8 @@ const ResultsDisplay = () => {
         .map(([symbol]) => symbol);
       setMissingDataAssets(missing);
 
-      // Calculate metrics
-      const metricsResponse = await calculateMetrics(fetchedData, assetSymbols, false);
+      // Calculate metrics (convert to selected currency)
+      const metricsResponse = await calculateMetrics(fetchedData, assetSymbols, false, currency);
       const calculatedMetrics = metricsResponse.data.metrics;
       setMetrics(calculatedMetrics);
 
@@ -236,13 +237,13 @@ const ResultsDisplay = () => {
                         onClick={() => handleSort('minPrice')}
                         className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                       >
-                        Min Price {sortConfig.key === 'minPrice' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                        Min Price ({currency}) {sortConfig.key === 'minPrice' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                       </th>
                       <th
                         onClick={() => handleSort('maxPrice')}
                         className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                       >
-                        Max Price {sortConfig.key === 'maxPrice' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                        Max Price ({currency}) {sortConfig.key === 'maxPrice' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                       </th>
                     </>
                   )}
@@ -263,10 +264,10 @@ const ResultsDisplay = () => {
                     {viewMode === 'intermediate' && (
                       <>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {metric.minPrice !== null ? `${metric.minPrice.toFixed(2)}` : 'N/A'}
+                          {formatCurrency(metric.minPrice, currency)}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {metric.maxPrice !== null ? `${metric.maxPrice.toFixed(2)}` : 'N/A'}
+                          {formatCurrency(metric.maxPrice, currency)}
                         </td>
                       </>
                     )}

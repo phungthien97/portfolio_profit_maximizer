@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 
-// Supported currencies
-const SUPPORTED_CURRENCIES = ['USD', 'CAD'];
+// Supported currencies - Top 10 most popular currencies (sorted alphabetically)
+const SUPPORTED_CURRENCIES = ['AUD', 'CAD', 'CHF', 'CNY', 'EUR', 'GBP', 'HKD', 'JPY', 'USD', 'VND'];
 
 // In-memory storage for currency (session simulation)
 // In a real app, this would be stored per session

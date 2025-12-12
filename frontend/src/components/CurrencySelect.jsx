@@ -13,10 +13,14 @@ const CurrencySelect = () => {
     // Fetch current currency from backend
     getCurrency()
       .then(response => {
-        setCurrencyContext(response.data.currency);
+        if (response.data && response.data.currency) {
+          setCurrencyContext(response.data.currency);
+        }
       })
       .catch(err => {
-        console.error('Error fetching currency:', err);
+        // If backend is not available, default to USD
+        console.warn('Could not fetch currency from backend, using default USD:', err.message);
+        setCurrencyContext('USD');
       });
   }, [setCurrencyContext]);
 
@@ -62,8 +66,16 @@ const CurrencySelect = () => {
             disabled={loading}
             className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100"
           >
-            <option value="USD">USD - US Dollar</option>
+            <option value="AUD">AUD - Australian Dollar</option>
             <option value="CAD">CAD - Canadian Dollar</option>
+            <option value="CHF">CHF - Swiss Franc</option>
+            <option value="CNY">CNY - Chinese Yuan</option>
+            <option value="EUR">EUR - Euro</option>
+            <option value="GBP">GBP - British Pound</option>
+            <option value="HKD">HKD - Hong Kong Dollar</option>
+            <option value="JPY">JPY - Japanese Yen</option>
+            <option value="USD">USD - US Dollar</option>
+            <option value="VND">VND - Vietnamese Dong</option>
           </select>
           
           {error && (

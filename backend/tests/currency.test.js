@@ -40,6 +40,24 @@ describe('Currency Endpoints', () => {
       expect(response.body).toHaveProperty('currency', 'CAD');
     });
 
+    it('should set currency to EUR', async () => {
+      const response = await request(app)
+        .post('/currency')
+        .send({ currency: 'EUR' })
+        .expect(200);
+
+      expect(response.body).toHaveProperty('currency', 'EUR');
+    });
+
+    it('should set currency to VND', async () => {
+      const response = await request(app)
+        .post('/currency')
+        .send({ currency: 'VND' })
+        .expect(200);
+
+      expect(response.body).toHaveProperty('currency', 'VND');
+    });
+
     it('should handle case-insensitive input', async () => {
       const response = await request(app)
         .post('/currency')
@@ -62,7 +80,7 @@ describe('Currency Endpoints', () => {
     it('should return 400 if currency is not supported', async () => {
       const response = await request(app)
         .post('/currency')
-        .send({ currency: 'EUR' })
+        .send({ currency: 'INVALID' })
         .expect(400);
 
       expect(response.body).toHaveProperty('error');

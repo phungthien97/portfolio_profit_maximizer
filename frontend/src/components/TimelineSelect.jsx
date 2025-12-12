@@ -20,10 +20,10 @@ const TimelineSelect = () => {
       return;
     }
 
-    // Check if date range is reasonable (at least 30 days)
+    // Check if date range is at least 1 year (365 days)
     const daysDiff = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
-    if (daysDiff < 30) {
-      setError('Date range must be at least 30 days');
+    if (daysDiff < 365) {
+      setError('Date range must be at least 1 year (365 days) for accurate analysis. Shorter periods may skew the results.');
       return;
     }
 
@@ -33,6 +33,10 @@ const TimelineSelect = () => {
   const handleBack = () => {
     navigate('/portfolio');
   };
+
+  // Calculate if date range is valid (at least 1 year)
+  const isValidDateRange = startDate && endDate && startDate < endDate && 
+    Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) >= 365;
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -44,7 +48,7 @@ const TimelineSelect = () => {
         <div className="mb-6">
           <p className="text-gray-600 mb-4">
             Select the date range for historical data analysis. This period will be used to calculate annualized returns and risk metrics.
-            A longer period generally provides more reliable statistics.
+            <span className="font-semibold text-gray-800"> Minimum 1 year required</span> for accurate analysis. Shorter periods may skew the results.
           </p>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -64,6 +68,11 @@ const TimelineSelect = () => {
                 endDate={endDate}
                 maxDate={endDate || new Date()}
                 dateFormat="yyyy-MM-dd"
+                showYearDropdown
+                showMonthDropdown
+                dropdownMode="select"
+                scrollableYearDropdown
+                yearDropdownItemNumber={15}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholderText="Select start date"
               />
@@ -83,11 +92,20 @@ const TimelineSelect = () => {
                 selectsEnd
                 startDate={startDate}
                 endDate={endDate}
-                minDate={startDate}
+                minDate={startDate ? (() => {
+                  const minEndDate = new Date(startDate);
+                  minEndDate.setFullYear(minEndDate.getFullYear() + 1);
+                  return minEndDate;
+                })() : undefined}
                 maxDate={new Date()}
                 dateFormat="yyyy-MM-dd"
+                showYearDropdown
+                showMonthDropdown
+                dropdownMode="select"
+                scrollableYearDropdown
+                yearDropdownItemNumber={15}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholderText="Select end date"
+                placeholderText="Select end date (min 1 year from start)"
               />
             </div>
           </div>
@@ -98,14 +116,20 @@ const TimelineSelect = () => {
             </div>
           )}
 
-          {startDate && endDate && (
-            <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
-              <p className="text-sm text-blue-800">
-                Selected period: {startDate.toLocaleDateString()} to {endDate.toLocaleDateString()} 
-                ({Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24))} days)
-              </p>
-            </div>
-          )}
+          {startDate && endDate && (() => {
+            const daysDiff = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+            const years = (daysDiff / 365).toFixed(2);
+            const isValid = daysDiff >= 365;
+            return (
+              <div className={`mt-4 p-3 border rounded-md ${isValid ? 'bg-blue-50 border-blue-200' : 'bg-yellow-50 border-yellow-200'}`}>
+                <p className={`text-sm ${isValid ? 'text-blue-800' : 'text-yellow-800'}`}>
+                  Selected period: {startDate.toLocaleDateString()} to {endDate.toLocaleDateString()} 
+                  ({daysDiff} days / {years} years)
+                  {!isValid && <span className="block mt-1 font-semibold">⚠️ Minimum 1 year required</span>}
+                </p>
+              </div>
+            );
+          })()}
         </div>
 
         <div className="flex justify-between">
@@ -117,7 +141,7 @@ const TimelineSelect = () => {
           </button>
           <button
             onClick={handleNext}
-            disabled={!startDate || !endDate}
+            disabled={!isValidDateRange}
             className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
           >
             Next: View Results

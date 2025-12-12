@@ -6,7 +6,7 @@ A full-stack web application for portfolio optimization using historical data, a
 
 ## Features
 
-- **Currency Selection**: Choose USD or CAD for all inputs and outputs (default: USD)
+- **Currency Selection**: Choose from 10 popular currencies (USD, EUR, GBP, JPY, CNY, AUD, CAD, CHF, HKD, VND) for all inputs and outputs (default: USD)
 - **Portfolio Input**: Add unlimited assets with autocomplete search from Yahoo Finance
   - Inline validation for invalid ticker symbols
   - Confirmation prompt before removing assets
@@ -172,7 +172,7 @@ npm test
 
 ### Currency
 - `GET /currency` - Get current currency setting
-- `POST /currency` - Set currency (body: `{ currency: "USD" | "CAD" }`)
+- `POST /currency` - Set currency (body: `{ currency: "USD" | "EUR" | "GBP" | "JPY" | "CNY" | "AUD" | "CAD" | "CHF" | "HKD" | "VND" }`)
 
 ### Assets
 - `GET /assets/search?query=string` - Search for assets by ticker symbol or name
@@ -201,7 +201,7 @@ npm test
 1. Start both backend and frontend servers (see Setup Instructions above)
 2. Open the frontend URL in your browser (typically `http://localhost:5173`)
 3. Follow the step-by-step wizard:
-   - **Step 0**: Select currency (USD or CAD)
+   - **Step 0**: Select currency from 10 popular options (USD, EUR, GBP, JPY, CNY, AUD, CAD, CHF, HKD, VND)
    - **Step 1**: Add portfolio assets using autocomplete search
    - **Step 2**: Select timeline (date range) for historical analysis
    - **Step 3 & 4**: View results including:
