@@ -236,4 +236,68 @@ npm test
 - **Error Handling**: Inline validation with clear error messages
 - **PDF Export**: Comprehensive reports including all graphs, metrics, and projections
 
+## Deployment
+
+### Backend Deployment (Render.com)
+
+1. **Create a new Web Service** on Render.com:
+   - Connect your GitHub repository
+   - Select the `backend` directory as the root directory
+   - Build command: `npm install`
+   - Start command: `npm start`
+   - Environment: `Node`
+
+2. **Set Environment Variables** in Render dashboard:
+   ```
+   PORT=5000 (or leave default - Render sets this automatically)
+   NODE_ENV=production
+   FRONTEND_URL=https://your-frontend-app.vercel.app
+   ```
+   Replace `your-frontend-app.vercel.app` with your actual Vercel deployment URL.
+
+3. Render will automatically:
+   - Install dependencies
+   - Start the server using `npm start`
+   - Assign a public URL (e.g., `https://your-backend.onrender.com`)
+
+### Frontend Deployment (Vercel)
+
+1. **Install Vercel CLI** (optional, or use Vercel dashboard):
+   ```bash
+   npm i -g vercel
+   ```
+
+2. **Deploy from the frontend directory**:
+   ```bash
+   cd frontend
+   vercel
+   ```
+   Or connect your GitHub repository through the Vercel dashboard and set the root directory to `frontend`.
+
+3. **Set Environment Variables** in Vercel dashboard:
+   - Go to your project settings → Environment Variables
+   - Add: `VITE_API_URL` = `https://your-backend.onrender.com`
+   - Replace with your actual Render backend URL
+
+4. **Important**: After setting the environment variable, you need to **redeploy** the frontend for the changes to take effect.
+
+### Post-Deployment Checklist
+
+- [ ] Backend is accessible at the Render URL
+- [ ] Frontend environment variable `VITE_API_URL` is set to the backend URL
+- [ ] Backend environment variable `FRONTEND_URL` is set to the frontend URL
+- [ ] Test the health endpoint: `https://your-backend.onrender.com/health`
+- [ ] Test the full application flow from the frontend
+
+### Notes
+
+- **Free Tier Limitations**:
+  - Render free tier: Services spin down after 15 minutes of inactivity (cold starts)
+  - Vercel free tier: Generous limits for personal projects
+  - First request after inactivity may be slow due to cold start on Render
+
+- **CORS Configuration**: The backend is configured to accept requests from the frontend URL specified in `FRONTEND_URL`. In development, it allows all origins.
+
+- **Environment Variables**: Make sure to set environment variables in both platforms before deploying or immediately after the first deployment.
+
 
