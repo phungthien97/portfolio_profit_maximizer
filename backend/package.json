@@ -14,7 +14,7 @@
     "optimization",
     "finance"
   ],
-  "author": "",
+  "author": "Thien Phung",
   "license": "ISC",
   "dependencies": {
     "cors": "^2.8.5",

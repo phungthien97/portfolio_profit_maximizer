@@ -2,6 +2,8 @@
 
 A full-stack web application for portfolio optimization using historical data, annualized returns, risk metrics, and the Efficient Frontier framework. This app helps investors make data-driven decisions to maximize profit while minimizing risk for their stock/ETF portfolios.
 
+**Created by Thien Phung**
+
 ## Features
 
 - **Currency Selection**: Choose USD or CAD for all inputs and outputs (default: USD)
