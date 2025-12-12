@@ -1,33 +1,65 @@
 # Portfolio Profit Maximizer
 
-A full-stack web application for portfolio optimization using historical data, annualized returns, risk metrics, and the Efficient Frontier framework.
+A full-stack web application for portfolio optimization using historical data, annualized returns, risk metrics, and the Efficient Frontier framework. This app helps investors make data-driven decisions to maximize profit while minimizing risk for their stock/ETF portfolios.
 
 ## Features
 
-- **Currency Selection**: Choose USD or CAD for all calculations
+- **Currency Selection**: Choose USD or CAD for all inputs and outputs (default: USD)
 - **Portfolio Input**: Add unlimited assets with autocomplete search from Yahoo Finance
-- **Timeline Selection**: Select date ranges for historical analysis
-- **Profit/Risk Metrics**: Calculate annualized returns and risk with sortable tables
-- **Efficient Frontier**: Interactive graph showing optimal risk-return combinations
-- **Optimized Allocation**: Get recommended portfolio allocations based on expected return
-- **PDF Export**: Generate comprehensive reports
+  - Inline validation for invalid ticker symbols
+  - Confirmation prompt before removing assets
+- **Timeline Selection**: Date range picker for selecting historical analysis period
+- **Data Retrieval & Metrics**: 
+  - Fetch end-of-day historical data from Yahoo Finance
+  - Calculate annualized return % and annualized risk % (standard deviation)
+  - Display min/max prices for each asset
+  - Warning notifications for missing or incomplete data
+- **Profit/Risk Table**: 
+  - Sortable table with metrics for all assets
+  - Basic view: Annualized Return %, Annualized Risk %
+  - Intermediate view: Includes min/max prices in the period
+- **Efficient Frontier Graph**: 
+  - Interactive Plotly.js graph showing the entire feasible portfolio region
+  - Efficient frontier curve highlighted
+  - Hover interactivity showing exact risk, return, and asset weights
+  - Displays min and max achievable returns
+- **Investment Input**: 
+  - Enter investment amount (whole numbers only)
+  - Enter expected return (%) with validation against min-max range
+- **Optimized Allocation**: 
+  - Recommended portfolio allocation based on expected return
+  - Pie chart visualization using Chart.js
+  - Detailed table with % and $ allocation per asset
+  - Textual explanation of the allocation strategy
+- **Portfolio Projection**: 
+  - Configurable projection period (1-10 years)
+  - Portfolio growth projection graph with confidence bounds
+  - Risk projection over time
+  - Projected final value and return percentage
+- **PDF Export**: 
+  - Comprehensive report including all inputs, metrics, graphs, and projections
+  - Includes Efficient Frontier, allocation charts, and projection graphs
 
 ## Tech Stack
 
 ### Backend
-- Node.js + Express
-- Yahoo Finance API (yahoo-finance2)
-- Math.js for calculations
-- Jest for testing
+- **Node.js + Express**: RESTful API server
+- **yahoo-finance2**: Yahoo Finance API integration for asset search and historical data
+- **mathjs**: Mathematical operations and matrix calculations
+- **numeric**: Numerical computing for optimization
+- **quadprog**: Quadratic programming for portfolio optimization
+- **Jest + Supertest**: Testing framework
 
 ### Frontend
-- React with Vite
-- React Router for navigation
-- Tailwind CSS for styling
-- Plotly.js for interactive graphs
-- Chart.js for pie charts
-- jsPDF for PDF exports
-- React DatePicker for date selection
+- **React 19**: UI framework with hooks and context API
+- **Vite**: Build tool and development server
+- **React Router DOM**: Client-side routing and navigation
+- **Tailwind CSS**: Utility-first CSS framework for responsive design
+- **Plotly.js + react-plotly.js**: Interactive graphs (Efficient Frontier, projections)
+- **Chart.js + react-chartjs-2**: Pie charts for portfolio allocation
+- **jsPDF + html2canvas**: PDF generation with graph exports
+- **React DatePicker**: Date range selection component
+- **Axios**: HTTP client for API requests
 
 ## Setup Instructions
 
@@ -94,48 +126,114 @@ npm test
 .
 ├── backend/
 │   ├── routes/          # API route handlers
-│   ├── tests/           # Test files
+│   │   ├── assets.js    # Asset search and validation
+│   │   ├── calculations.js  # Metrics calculations
+│   │   ├── currency.js  # Currency management
+│   │   ├── data.js      # Historical data fetching
+│   │   ├── health.js    # Health check endpoint
+│   │   └── optimization.js  # Efficient frontier and allocation
+│   ├── tests/           # Jest test files
 │   ├── server.js        # Express server setup
+│   ├── jest.config.js   # Jest configuration
 │   └── package.json
 ├── frontend/
 │   ├── src/
 │   │   ├── components/  # React components
-│   │   ├── context/     # Context API for state
-│   │   ├── services/    # API service functions
-│   │   └── App.jsx      # Main app component
+│   │   │   ├── AllocationOutput.jsx  # Allocation results and PDF export
+│   │   │   ├── CurrencySelect.jsx    # Currency selection
+│   │   │   ├── InvestmentInput.jsx   # Investment amount and expected return
+│   │   │   ├── Layout.jsx            # App layout wrapper
+│   │   │   ├── PortfolioInput.jsx    # Asset input with autocomplete
+│   │   │   ├── ResultsDisplay.jsx    # Metrics table and Efficient Frontier
+│   │   │   └── TimelineSelect.jsx    # Date range picker
+│   │   ├── context/
+│   │   │   └── AppContext.jsx        # Global state management
+│   │   ├── services/
+│   │   │   └── api.js                # API client functions
+│   │   ├── App.jsx                   # Main app with routing
+│   │   └── main.jsx                  # React entry point
+│   ├── public/          # Static assets
+│   ├── index.html       # HTML template
+│   ├── vite.config.js   # Vite configuration
+│   ├── tailwind.config.js  # Tailwind CSS configuration
 │   └── package.json
-└── README.md
+├── portfolio_profit_maximizer_spec.md  # Original specification
+├── blueprint.md         # Development blueprint
+├── todo.md              # Development checklist
+└── README.md            # This file
 ```
 
 ## API Endpoints
 
-- `GET /health` - Health check
-- `GET /currency` - Get current currency
-- `POST /currency` - Set currency
-- `GET /assets/search?query=string` - Search for assets
-- `GET /assets/validate?symbol=string` - Validate asset symbol
+### Health
+- `GET /health` - Health check endpoint
+
+### Currency
+- `GET /currency` - Get current currency setting
+- `POST /currency` - Set currency (body: `{ currency: "USD" | "CAD" }`)
+
+### Assets
+- `GET /assets/search?query=string` - Search for assets by ticker symbol or name
+- `GET /assets/validate?symbol=string` - Validate if an asset symbol exists
+
+### Data
 - `POST /data/fetch` - Fetch historical data
-- `POST /calculations/metrics` - Calculate metrics
+  - Body: `{ assets: string[], startDate: string, endDate: string, currency: string }`
+  - Returns: Historical price data with quality indicators
+
+### Calculations
+- `POST /calculations/metrics` - Calculate annualized returns and risk metrics
+  - Body: `{ data: object, assets: string[], interpolateMissing: boolean }`
+  - Returns: Metrics including return %, risk %, min/max prices
+
+### Optimization
 - `POST /optimization/frontier` - Compute efficient frontier
+  - Body: `{ metrics: object, data: object, assets: string[] }`
+  - Returns: Frontier points, min/max returns, portfolio weights
 - `POST /optimization/allocation` - Get optimized allocation
+  - Body: `{ frontier: object, expectedReturn: number, investmentAmount: number, metrics: object, data: object, assets: string[] }`
+  - Returns: Recommended allocation with percentages and dollar amounts
 
 ## Usage
 
-1. Start both backend and frontend servers
-2. Open the frontend URL in your browser
+1. Start both backend and frontend servers (see Setup Instructions above)
+2. Open the frontend URL in your browser (typically `http://localhost:5173`)
 3. Follow the step-by-step wizard:
-   - Select currency
-   - Add portfolio assets
-   - Select timeline
-   - View results and efficient frontier
-   - Enter investment amount and expected return
-   - View optimized allocation and export PDF
+   - **Step 0**: Select currency (USD or CAD)
+   - **Step 1**: Add portfolio assets using autocomplete search
+   - **Step 2**: Select timeline (date range) for historical analysis
+   - **Step 3 & 4**: View results including:
+     - Sortable profit/risk metrics table
+     - Interactive Efficient Frontier graph
+   - **Step 5**: Enter investment amount and expected return
+   - **Step 6**: View optimized allocation with:
+     - Pie chart visualization
+     - Detailed allocation table
+     - Portfolio projection graphs
+     - Export comprehensive PDF report
 
-## Notes
+### Navigation
+- Linear flow by default through all steps
+- After viewing results, you can jump back to:
+  - Step 1: Change portfolio assets
+  - Step 5: Adjust investment amount or expected return
 
-- The app uses session-based state (no persistence on page refresh)
-- Historical data is fetched from Yahoo Finance
-- Efficient Frontier uses Monte Carlo simulation (10,000 portfolios)
-- All calculations assume 252 trading days per year
+## Key Features & Implementation Details
+
+- **Session-based State**: Uses React Context API for state management (no persistence on page refresh)
+- **Data Source**: Yahoo Finance API (yahoo-finance2) for end-of-day historical data
+- **Efficient Frontier**: Monte Carlo simulation generating 10,000 random portfolios
+  - No short selling (weights 0-100%, sum to 100%)
+  - Identifies optimal risk-return combinations
+- **Calculations**: 
+  - Annualized returns using geometric mean
+  - Annualized risk (standard deviation) assuming 252 trading days per year
+  - Portfolio optimization using quadratic programming
+- **Missing Data Handling**: 
+  - Warns users about assets with missing or incomplete data
+  - Data quality indicators provided
+- **Responsive Design**: Fully responsive for desktop, tablet, and mobile devices
+- **Error Handling**: Inline validation with clear error messages
+- **PDF Export**: Comprehensive reports including all graphs, metrics, and projections
 
 
